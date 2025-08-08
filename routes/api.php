@@ -12,3 +12,5 @@ Route::post('/register', [AuthenticationController::class, 'register']);
 Route::post('/resend-otp', [AuthenticationController::class, 'resendOtp']);
 Route::post('/check-otp-register', [AuthenticationController::class, 'verifyOtp']);
 Route::post('/verify-register', [AuthenticationController::class, 'verifyRegister']);
+
+Route::post('/login', [AuthenticationController::class, 'login']);

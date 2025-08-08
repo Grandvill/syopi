@@ -58,6 +58,31 @@ class AuthenticationController extends Controller
     }
     public function verifyRegister()
     {
+        $validator = \Validator::make(request()->all(), [
+            'email' => 'required|email|exists:users,email',
+            'otp' => 'required|exists:users,otp_register',
+            'password' => 'required|min:6|confirmed',
+        ]);
 
+        if ($validator->fails()) {
+            return ResponseFormatter::error(400, $validator->errors());
+        }
+
+        $user = User::where('email', request()->email)->where('otp_register', request()->otp)->first();
+        if (!is_null($user)) {
+            $user->update([
+                'otp_register' => null,
+                'email_verified_at' => now(),
+                'password' => bcrypt(request()->password)
+            ]);
+
+            $token = $user->createToken(config('app.name'))->plainTextToken;
+
+            return ResponseFormatter::success([
+                'token' => $token
+            ]);
+        }
+
+        return ResponseFormatter::error(400, 'Invalid OTP');
     }
 }

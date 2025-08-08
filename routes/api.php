@@ -10,4 +10,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthenticationController::class, 'register']);
 Route::post('/check-otp-register', [AuthenticationController::class, 'verifyOtp']);
-Route::post('/verify-register', [AuthenticationController::class, 'register']);
+Route::post('/verify-register', [AuthenticationController::class, 'verifyRegister']);

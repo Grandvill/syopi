@@ -9,5 +9,5 @@ use Illuminate\Support\Facades\Route;
 // })->middleware('auth:sanctum');
 
 Route::post('/register', [AuthenticationController::class, 'register']);
-Route::post('/verify-otp', [AuthenticationController::class, 'register']);
+Route::post('/check-otp-register', [AuthenticationController::class, 'verifyOtp']);
 Route::post('/verify-register', [AuthenticationController::class, 'register']);

@@ -19,7 +19,7 @@ class AuthenticationController extends Controller
         }
 
         do {
-            $otp = rand(100000, 999999);
+            $otp = rand(10000, 999999);
 
             $otpCount = User::where('otp_register', $otp)->count();
         } while ($otpCount > 0);
@@ -38,7 +38,23 @@ class AuthenticationController extends Controller
     }
     public function verifyOtp()
     {
+        $validator = \Validator::make(request()->all(), [
+            'email' => 'required|email|exists:users,email',
+            'otp' => 'required|exists:users,otp_register',
+        ]);
 
+        if ($validator->fails()) {
+            return ResponseFormatter::error(400, $validator->errors());
+        }
+
+        $user = User::where('email', request()->email)->where('otp_register', request()->otp)->count();
+        if ($user > 0) {
+            return ResponseFormatter::success([
+                'is_correct' => true
+            ]);
+        }
+
+        return ResponseFormatter::error(400, 'Invalid OTP');
     }
     public function verifyRegister()
     {

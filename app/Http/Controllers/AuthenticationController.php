@@ -4,17 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\ResponseFormatter;
+use App\Models\User;
 
 class AuthenticationController extends Controller
 {
     public function register()
     {
-        $validator = \Validation::make(request()->all(), [
+        $validator = \Validator::make(request()->all(), [
             'email' => 'required|email|unique:users,email',
         ]);
 
-        if (validator->false()) {
-            return ResponseFormatter::error(400, $validator->fails());
+        if ($validator->fails()) {
+            return ResponseFormatter::error(400, $validator->errors());
         }
 
         do {
@@ -28,6 +29,8 @@ class AuthenticationController extends Controller
             'name' => request()->name,
             'otp_register' => $otp,
         ]);
+
+        \Mail::to($user->email)->send(new \App\Mail\SendRegisterOTP($user));
 
         return ResponseFormatter::success([
             'is_sent' => true

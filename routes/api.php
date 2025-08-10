@@ -22,3 +22,8 @@ Route::prefix('forgot-password')->group(function () {
 });
 
 Route::post('/login', [AuthenticationController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('profile', [ProfileController::class, 'getProfile']);
+    Route::patch('profile', [ProfileController::class, 'updateProfile']);
+});

@@ -70,4 +70,13 @@ class User extends Authenticatable
             'birth_date' => $this->birth_date
         ];
     }
+
+    public function getPhotoUrlAttribute()
+    {
+        if (is_null($this->photo)) {
+            return null;
+        }
+
+        return asset('storage/' . $this->photo);
+    }
 }

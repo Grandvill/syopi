@@ -14,4 +14,12 @@ class Slider extends Model
         'image',
         'url',
     ];
+
+    public function getApiResponseAttribute() {
+        return [
+            'title' => $this->title,
+            'image' => asset($this->image),
+            'url' => $this->url,
+        ];
+    }
 }

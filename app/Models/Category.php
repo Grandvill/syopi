@@ -26,4 +26,21 @@ class Category extends Model
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
+
+    public function getApiResponseAttribute() {
+        return [
+            'slug' => $this->slug,
+            'name' => $this->name,
+            'icon' => asset($this->icon),
+            'childs' => $this->childs->pluck('api_response_child'),
+            'description' => $this->description,
+        ];
+    }
+    public function getApiResponseChildAttribute() {
+        return [
+            'slug' => $this->slug,
+            'name' => $this->name,
+            'description' => $this->description,
+        ];
+    }
 }

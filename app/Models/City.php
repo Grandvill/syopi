@@ -14,4 +14,19 @@ class City extends Model
         'external_id',
         'name',
     ];
+
+    public function province()
+    {
+        return $this->belongsTo(\App\Models\Province::class);
+    }
+
+    public function getApiResponseAttribute()
+    {
+        return [
+            'uuid' => $this->uuid,
+            'province' => $this->province->only('uuid', 'name'),
+            'external_id' => $this->external_id,
+            'name' => $this->name,
+        ];
+    }
 }

@@ -12,9 +12,11 @@ class AddressController extends Controller
      */
     public function index()
     {
-        $query = auth()->user()->addresses();
+        $addresses = auth()->user()->addresses()->get();
 
-        return ResponseFormatter::success($addresses->pluck('api_response'));
+        return ResponseFormatter::success(
+            $addresses->map->api_response
+        );
     }
 
     /**
@@ -29,6 +31,7 @@ class AddressController extends Controller
         }
 
         $address = auth()->user()->addresses()->create($this->preparedData());
+        $address->refresh();
 
         return $this->show($address->uuid);
     }
@@ -56,6 +59,7 @@ class AddressController extends Controller
 
         $address = auth()->user()->addresses()->where('uuid', $uuid)->firstOrFail();
         $address->update($this->preparedData());
+        $address->refresh();
 
         return $this->show($address->uuid);
     }
@@ -71,6 +75,16 @@ class AddressController extends Controller
         return ResponseFormatter::success(['is_deleted' => true]);
     }
 
+    public function setDefault(string $uuid)
+    {
+        $address = auth()->user()->addresses()->where('uuid', $uuid)->firstOrFail();
+        $address->update(['is_default' => true]);
+
+        auth()->user()->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
+
+        return ResponseFormatter::success(['is_success' => true]);
+    }
+
     protected function getValidation()
     {
         return [
@@ -79,7 +93,7 @@ class AddressController extends Controller
             'receiver_phone' => 'required|min:2|max:30',
             'city_uuid' => 'required|exists:cities,uuid',
             'district' => 'required|min:3|max:50',
-            'postal_code' => 'required|numberic|min:5|max:10',
+            'postal_code' => 'required|numeric|digits:5',
             'detail_address' => 'nullable|max:255',
             'address_note' => 'nullable|max:255',
             'type' => 'required|in:home,office',
@@ -100,7 +114,11 @@ class AddressController extends Controller
             'type',
         ]);
 
-        $payload['city_id'] = \App\Models\City::where('uuid', $payload['city_uuid']);
+        $payload['city_id'] = \App\Models\City::where('uuid', $payload['city_uuid'])->firstOrFail()->id;
+
+        if($payload['is_default'] == 1) {
+            auth()->user()->addresses()->update(['is_default' => false]);
+        }
 
         return $payload;
     }

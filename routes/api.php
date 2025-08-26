@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AddressController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -29,6 +30,8 @@ Route::get('/slider', [HomeController::class, 'getSlider']);
 Route::get('/category', [HomeController::class, 'getCategory']);
 
 Route::middleware('auth:sanctum')->group(function () {
-Route::get('profile', [ProfileController::class, 'getProfile']);
+    Route::get('profile', [ProfileController::class, 'getProfile']);
     Route::patch('profile', [ProfileController::class, 'updateProfile']);
+
+    Route::apiResource('address', AddressController::class);
 });

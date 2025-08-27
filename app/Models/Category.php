@@ -43,4 +43,13 @@ class Category extends Model
             'description' => $this->description,
         ];
     }
+
+    public function getApiResponseWithParentAttribute() {
+        return [
+            'slug' => $this->slug,
+            'name' => $this->name,
+            'description' => $this->description,
+            'parent' => optional($ths->parent)->api_response_child,
+        ];
+    }
 }

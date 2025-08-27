@@ -14,4 +14,22 @@ class Variation extends Model
         'name',
         'values',
     ];
+
+    public function product()
+    {
+        return $this->belongsTo(\App\Models\Product\Product::class);
+    }
+
+    public function getApiResponseAttribute()
+    {
+        return [
+            'name' => $this->name,
+            'values' => json_decode($this->values),
+        ];
+    }
+
+    public function setValuesAttribute($value)
+    {
+        $this->attributes['values'] = json_encode($value);
+    }
 }

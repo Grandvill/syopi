@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\CartController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -44,4 +45,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('province', [AddressController::class, 'getProvince']);
     Route::get('city', [AddressController::class, 'getCity']);
+
+    Route::prefix('cart')->group(function () {
+        Route::get('/', [CartController::class, 'getCart']);
+        Route::post('/', [CartController::class, 'addToCart']);
+        Route::delete('/{uuid}', [CartController::class, 'removeItemFromCart']);
+        Route::patch('/{uuid}', [CartController::class, 'updateItemFromCart']);
+    });
 });

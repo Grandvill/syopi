@@ -49,7 +49,7 @@ class Category extends Model
             'slug' => $this->slug,
             'name' => $this->name,
             'description' => $this->description,
-            'parent' => optional($ths->parent)->api_response_child,
+            'parent' => optional($this->parent)->api_response_child,
         ];
     }
 }

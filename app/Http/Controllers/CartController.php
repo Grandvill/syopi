@@ -53,4 +53,45 @@ class CartController extends Controller
             'items' => $cart->items->pluck('api_response')
         ]);
     }
+
+    public function addToCart()
+    {
+        $validator = \Validator::make(request()->all(), [
+            'product_uuid' => 'required|exists:products,uuid',
+            'qty' => 'required|numeric|min:1',
+            'note' => 'nullable|string',
+            'vartiations' => 'nullable|array',
+            'variations.*.label' => 'required|exists:variations,name',
+            'variations.*.value' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseFormatter::error(400, $validator->errors());
+        }
+
+        $cart = $this->getOrCreateCart();
+        $product = \App\Models\Product\Product::where('uuid', request()->product_uuid)->firstOrFail();
+        if ($product->stock < request()->qty) {
+            return ResponseFormatter::error(400, null, [
+                'Stock tidak cukup!'
+            ]);
+        }
+
+        if ($cart->items->isNotEmpty() && $cart->items->first()->product->seller_id != $product->seller_id) {
+            return ResponseFormatter::error(400, null, [
+                'Keranjang hanya boleh diisi oleh produk dari penjual yang sama!'
+            ]);
+        }
+
+        $cart->items()->create([
+            'product_id' => $product->id,
+            'variations' => request()->variations,
+            'qty' => request()->qty,
+            'note' => request()->note,
+        ]);
+
+        return $this->getCart();
+    }
+
+
 }

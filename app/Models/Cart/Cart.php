@@ -43,7 +43,7 @@ class Cart extends Model
 
     public function address()
     {
-        return $this->belongsTo(\App\Models\Address\Address::class);
+        return $this->belongsTo(\App\Models\Address::class);
     }
 
     public function user()
@@ -51,10 +51,10 @@ class Cart extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function voucher()
-    {
-        return $this->hasOne(\App\Models\Voucher::class, 'id', 'voucher_id');
-    }
+    // public function voucher()
+    // {
+    //     return $this->hasOne(\App\Models\Voucher::class, 'id', 'voucher_id');
+    // }
 
     public function getApiResponseAttribute()
     {

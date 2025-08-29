@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Cart\Cart;
+use App\ResponseFormatter;
 
 class CartController extends Controller
 {
@@ -40,5 +42,15 @@ class CartController extends Controller
         $cart->save();
 
         return $cart;
+    }
+
+    public function getCart()
+    {
+        $cart = $this->getOrCreateCart();
+
+        return ResponseFormatter::success([
+            'cart' => $cart->api_response,
+            'items' => $cart->items->pluck('api_response')
+        ]);
     }
 }

@@ -93,5 +93,16 @@ class CartController extends Controller
         return $this->getCart();
     }
 
+    public function removeItemFromCart(string $uuid)
+    {
+        $cart = $this->getOrCreateCart();
+        $item = $cart->items()->where('uuid', $uuid)->firstOrFail();
+        $item->delete();
+
+        return ResponseFormatter::success([
+            'cart' => $cart->api_response,
+            'items' => $cart->items->pluck('api_response')
+        ]);
+    }
 
 }

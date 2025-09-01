@@ -51,10 +51,10 @@ class Cart extends Model
         return $this->belongsTo(User::class);
     }
 
-    // public function voucher()
-    // {
-    //     return $this->hasOne(\App\Models\Voucher::class, 'id', 'voucher_id');
-    // }
+    public function voucher()
+    {
+        return $this->hasOne(\App\Models\Voucher::class, 'id', 'voucher_id');
+    }
 
     public function getApiResponseAttribute()
     {

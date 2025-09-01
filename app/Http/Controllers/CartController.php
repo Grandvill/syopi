@@ -137,4 +137,11 @@ class CartController extends Controller
         return $this->getCart();
     }
 
+    public function getVoucher()
+    {
+        $vouchers = \App\Models\Voucher::public()->active()->get();
+
+        return ResponseFormatter::success($vouchers->pluck('api_response'));
+    }
+
 }

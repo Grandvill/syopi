@@ -195,4 +195,15 @@ class CartController extends Controller
         return $this->getCart();
     }
 
+    public function removeVoucher()
+    {
+        $cart = $this->getOrCreateCart();
+        $cart->voucher_id = null;
+        $cart->voucher_value = null;
+        $cart->voucher_cashback = null;
+        $cart->save();
+
+        return $this->getCart();
+    }
+
 }

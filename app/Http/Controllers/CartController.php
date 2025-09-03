@@ -222,5 +222,4 @@ class CartController extends Controller
 
         return $this->getCart();
     }
-
 }

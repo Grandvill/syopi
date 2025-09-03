@@ -222,4 +222,53 @@ class CartController extends Controller
 
         return $this->getCart();
     }
+
+    public function getShipping()
+    {
+        $cart = $this->getOrCreateCart();
+        // Validasi courier: jne|pos
+        $validator = \Validator::make(request()->all(), [
+            'courier' => 'required|in:jne,tiki',
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseFormatter::error(400, $validator->errors());
+        }
+
+        // Validasi item di keranjang belanja
+        if ($cart->items->count() == 0) {
+            return ResponseFormatter::error(400, null, [
+                'Keranjang belanja kosong!'
+            ]);
+        }
+
+        // Validasi bahwa seller sudah mengisi alamat dia
+        $seller = $cart->items->first()->product->seller;
+        $sellerAddress = $seller->addresses()->where('is_default', true)->first();
+        if (is_null($sellerAddress)) {
+            return ResponseFormatter::error(400, null, [
+                'Alamat seller belum diisi'
+            ]);
+        }
+
+        // Validasi address di cart
+        if (is_null($cart->address)) {
+            return ResponseFormatter::error(400, null, [
+                'Alamat tujuan belum diisi'
+            ]);
+        }
+
+        $weight = $cart->items->sum(function($item){
+            return $item->qty * $item->product->weight;
+        });
+
+        $result = $this->getShippingOptions(
+            $sellerAddress->city->external_id,
+            $cart->address->city->external_id,
+            $weight,
+            request()->courier
+        );
+
+        return ResponseFormatter::success($result);
+    }
 }

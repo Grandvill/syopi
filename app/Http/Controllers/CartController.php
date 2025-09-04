@@ -271,4 +271,106 @@ class CartController extends Controller
 
         return ResponseFormatter::success($result);
     }
+
+    public function updateShippingFee()
+    {
+        $validator = \Validator::make(request()->all(), [
+            'courier' => 'required|in:jne,tiki',
+            'service' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseFormatter::error(400, $validator->errors());
+        }
+
+        $cart = $this->getOrCreateCart();
+
+        // Validasi item di keranjang belanja
+        if ($cart->items->count() == 0) {
+            return ResponseFormatter::error(400, null, [
+                'Keranjang belanja kosong!'
+            ]);
+        }
+
+         $seller = $cart->items->first()->product->seller;
+
+        dd([
+            'seller_id' => $seller->id,
+            'seller_user_id' => $seller->user_id ?? null,
+            'seller_addresses_count' => $seller->addresses()->count(),
+            'seller_addresses_data' => $seller->addresses()->get(),
+        ]);
+
+
+        // Validasi bahwa seller sudah mengisi alamat dia
+        $seller = $cart->items->first()->product->seller;
+        $sellerAddress = $seller->addresses()->where('is_default', true)->first();
+        if (is_null($sellerAddress)) {
+            return ResponseFormatter::error(400, null, [
+                'Alamat seller belum diisi'
+            ]);
+        }
+
+        // Validasi address di cart
+        if (is_null($cart->address)) {
+            return ResponseFormatter::error(400, null, [
+                'Alamat tujuan belum diisi'
+            ]);
+        }
+
+        $weight = $cart->items->sum(function($item){
+            return $item->qty * $item->product->weight;
+        });
+
+        $result = $this->getShippingOptions(
+            $sellerAddress->city->external_id,
+            $cart->address->city->external_id,
+            $weight,
+            request()->courier
+        );
+
+        $service = collect($result['cost'])->where('service', request()->service)->first();
+        if (is_null($service)) {
+            return ResponseFormatter::error(400, null, [
+                'Service tidak ditemukan'
+            ]);
+        }
+
+        $cart->courier = request()->courier;
+        $cart->courier_type = request()->service;
+        $cart->courier_estimation = $service['etd'];
+        $cart->courier_price = $service['value'];
+        $cart->save();
+
+        return $this->getCart();
+    }
+
+    private function getShippingOptions(int $origin, int $destination, float $weight, string $courier)
+    {
+        $response = Http::asForm()->withHeaders([
+            'key' => config('services.rajaongkir.api_key'),
+            'Accept' => 'application/json',
+        ])->post(config('services.rajaongkir.base_url') . '/calculate/domestic-cost', [
+            'origin' => 128,
+            'destination' => 17,
+            'weight' => 500,
+            'courier' => 'jne',
+        ]);
+
+        $result = collect($response->object()->rajaongkir->results)->map(function($item){
+            return [
+                'service' => $item->name,
+                'cost' =>collect($item->costs)->map(function($cost){
+                    return [
+                        'service' => $cost->service,
+                        'description' => $cost->description,
+                        'etd' => $cost->cost[0]->etd,
+                        'value' => $cost->cost[0]->value,
+                    ];
+                }),
+            ];
+        })[0];
+
+        return $result;
+    }
 }

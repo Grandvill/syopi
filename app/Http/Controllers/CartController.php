@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use App\Models\Cart\Cart;
 use App\ResponseFormatter;
 
@@ -292,16 +293,6 @@ class CartController extends Controller
             ]);
         }
 
-         $seller = $cart->items->first()->product->seller;
-
-        dd([
-            'seller_id' => $seller->id,
-            'seller_user_id' => $seller->user_id ?? null,
-            'seller_addresses_count' => $seller->addresses()->count(),
-            'seller_addresses_data' => $seller->addresses()->get(),
-        ]);
-
-
         // Validasi bahwa seller sudah mengisi alamat dia
         $seller = $cart->items->first()->product->seller;
         $sellerAddress = $seller->addresses()->where('is_default', true)->first();
@@ -329,7 +320,7 @@ class CartController extends Controller
             request()->courier
         );
 
-        $service = collect($result['cost'])->where('service', request()->service)->first();
+        $service = collect($result)->firstWhere('service', request()->service);
         if (is_null($service)) {
             return ResponseFormatter::error(400, null, [
                 'Service tidak ditemukan'
@@ -345,32 +336,35 @@ class CartController extends Controller
         return $this->getCart();
     }
 
-    private function getShippingOptions(int $origin, int $destination, float $weight, string $courier)
+   private function getShippingOptions(int $origin, int $destination, float $weight, string $courier)
     {
         $response = Http::asForm()->withHeaders([
             'key' => config('services.rajaongkir.api_key'),
             'Accept' => 'application/json',
         ])->post(config('services.rajaongkir.base_url') . '/calculate/domestic-cost', [
-            'origin' => 128,
-            'destination' => 17,
-            'weight' => 500,
-            'courier' => 'jne',
+            'origin' => $origin,
+            'destination' => $destination,
+            'weight' => $weight,
+            'courier' => $courier,
         ]);
 
-        $result = collect($response->object()->rajaongkir->results)->map(function($item){
+        $data = $response->object();
+
+        if (!isset($data->data)) {
+            return [];
+        }
+
+        $result = collect($data->data)->map(function ($item) {
             return [
-                'service' => $item->name,
-                'cost' =>collect($item->costs)->map(function($cost){
-                    return [
-                        'service' => $cost->service,
-                        'description' => $cost->description,
-                        'etd' => $cost->cost[0]->etd,
-                        'value' => $cost->cost[0]->value,
-                    ];
-                }),
+                'service'       => $item->service,
+                'description'   => $item->description,
+                'etd'           => $item->etd,
+                'value'         => $item->cost,
             ];
-        })[0];
+        });
 
         return $result;
     }
+
+
 }

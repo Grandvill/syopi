@@ -97,8 +97,10 @@ class User extends Authenticatable
 
     public function addresses()
     {
-        return $this->hasMany(\App\Models\Address::class);
+        return $this->hasMany(\App\Models\Address::class, 'user_id', 'id');
     }
+
+
 
     public function products()
     {

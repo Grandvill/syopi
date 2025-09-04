@@ -99,7 +99,23 @@ class AddressController extends Controller
         }
 
         $address = auth()->user()->addresses()->where('uuid', $uuid)->firstOrFail();
-        $address->update($this->preparedData());
+
+        $response = \Http::withHeaders([
+            'key' => config('services.rajaongkir.api_key')
+        ])->get(config('services.rajaongkir.base_url') . '/destination/domestic-destination', [
+            'search' => request()->postal_code,
+        ]);
+
+        if ($response->object()->meta->code == '404' || !isset($response->object()->data[0])) {
+            return ResponseFormatter::error(400, [
+                'Kode POS tidak ditemukan!'
+            ]);
+        }
+
+        $payload = $this->preparedData();
+        $payload['rajaongkir_subdistrict_id'] = $response->object()->data[0]->id;
+
+        $address->update($payload);
         $address->refresh();
 
         return $this->show($address->uuid);

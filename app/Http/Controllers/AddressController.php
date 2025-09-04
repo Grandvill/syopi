@@ -55,10 +55,26 @@ class AddressController extends Controller
             return ResponseFormatter::error(400, $validator->errors());
         }
 
-        $address = auth()->user()->addresses()->create($this->preparedData());
+        $response = \Http::withHeaders([
+            'key' => config('services.rajaongkir.api_key')
+        ])->get(config('services.rajaongkir.base_url') . '/destination/domestic-destination', [
+            'search' => request()->postal_code,
+        ]);
+
+        if ($response->object()->meta->code == '404' || !isset($response->object()->data[0])) {
+            return ResponseFormatter::error(400, [
+                'Kode POS tidak ditemukan!'
+            ]);
+        }
+
+        $payload = $this->preparedData();
+        $payload['rajaongkir_subdistrict_id'] = $response->object()->data[0]->id;
+
+        $address = auth()->user()->addresses()->create($payload);
         $address->refresh();
 
         return $this->show($address->uuid);
+
     }
 
     /**
@@ -118,7 +134,7 @@ class AddressController extends Controller
             'receiver_phone' => 'required|min:2|max:30',
             'city_uuid' => 'required|exists:cities,uuid',
             'district' => 'required|min:3|max:50',
-            'postal_code' => 'required|numeric|digits:5',
+            'postal_code' => 'required|numeric',
             'detail_address' => 'nullable|max:255',
             'address_note' => 'nullable|max:255',
             'type' => 'required|in:home,office',

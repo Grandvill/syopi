@@ -264,8 +264,8 @@ class CartController extends Controller
         });
 
         $result = $this->getShippingOptions(
-            $sellerAddress->city->external_id,
-            $cart->address->city->external_id,
+            $sellerAddress->rajaongkir_subdistrict_id,
+            $cart->address->rajaongkir_subdistrict_id,
             $weight,
             request()->courier
         );
@@ -314,8 +314,8 @@ class CartController extends Controller
         });
 
         $result = $this->getShippingOptions(
-            $sellerAddress->city->external_id,
-            $cart->address->city->external_id,
+            $sellerAddress->rajaongkir_subdistrict_id,
+            $cart->address->rajaongkir_subdistrict_id,
             $weight,
             request()->courier
         );
@@ -338,30 +338,24 @@ class CartController extends Controller
 
    private function getShippingOptions(int $origin, int $destination, float $weight, string $courier)
     {
-        $response = Http::asForm()->withHeaders([
+        $response = Http::withHeaders([
             'key' => config('services.rajaongkir.api_key'),
-            'Accept' => 'application/json',
-        ])->post(config('services.rajaongkir.base_url') . '/calculate/domestic-cost', [
+        ])->asForm()->post(config('services.rajaongkir.base_url') . '/calculate/domestic-cost', [
             'origin' => $origin,
             'destination' => $destination,
             'weight' => $weight,
             'courier' => $courier,
         ]);
 
-        $data = $response->object();
-
-        if (!isset($data->data)) {
-            return [];
-        }
-
-        $result = collect($data->data)->map(function ($item) {
-            return [
-                'service'       => $item->service,
-                'description'   => $item->description,
-                'etd'           => $item->etd,
-                'value'         => $item->cost,
+        $result['service'] = $response->object()->data[0]->name;
+        foreach ($response->object()->data as $item) {
+            $result['cost'][] = [
+                'service' => $item->service,
+                'description' => $item->description,
+                'etd' => $item->etd,
+                'value' => $item->cost,
             ];
-        });
+        }
 
         return $result;
     }

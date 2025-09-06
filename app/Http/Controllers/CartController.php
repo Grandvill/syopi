@@ -320,7 +320,7 @@ class CartController extends Controller
             request()->courier
         );
 
-        $service = collect($result)->firstWhere('service', request()->service);
+        $service = collect($result['cost'])->where('service', request()->service)->first();
         if (is_null($service)) {
             return ResponseFormatter::error(400, null, [
                 'Service tidak ditemukan'

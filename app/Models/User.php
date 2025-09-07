@@ -70,7 +70,8 @@ class User extends Authenticatable implements Wallet
             'phone' => $this->phone,
             'store_name' => $this->store_name,
             'gender' => $this->gender,
-            'birth_date' => $this->birth_date
+            'birth_date' => $this->birth_date,
+            'balance' => (float)$this->balance,
         ];
     }
 

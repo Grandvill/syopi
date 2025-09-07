@@ -22,4 +22,10 @@ Route::get('/', function () {
 //     dd($result);
 // });
 
+Route::get('/testing', function () {
+    $Order = \App\Models\Order\Order::orderBy('id', 'desc')->first();
+
+    return new \App\Mail\NewOrderToSeller($Order);
+});
+
 Route::post('/midtrans/callback', [\App\Http\Controllers\MidtransController::class, 'callback']);

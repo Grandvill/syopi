@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -65,5 +66,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/checkout', [CartController::class, 'checkout']);
     });
 
-
+    Route::prefix('order')->group(function(){
+        Route::get('/', [OrderController::class, 'index']);
+        // Route::get('/{uuid}', [OrderController::class, 'show']);
+        // Route::post('/review/add', [OrderController::class, 'addReview']);
+        // Route::post('/{uuid}/mark-done', [OrderController::class, 'markAsDone']);
+    });
 });

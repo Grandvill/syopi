@@ -98,8 +98,8 @@ class Order extends Model
         return [
             'uuid' => $this->uuid,
             'invoice_number' => $this->invoice_number,
-            'seller' => $this->seller->getApiResponseAsSellerAttribute(),
-            'address' => $this->address->getApiResponseAttribute(),
+            'seller' => $this->seller ? $this->seller->getApiResponseAsSellerAttribute() : null,
+            'address' => $this->address ? $this->address->getApiResponseAttribute() : null,
             'subtotal' => (float) $this->items->sum('total'),
             'courier' => $this->courier,
             'courier_type' => $this->courier_type,
@@ -116,10 +116,11 @@ class Order extends Model
             'is_paid' => $this->is_paid,
             'virtual_account_number' => $this->virtual_account_number,
             'qris_image_url' => $this->qris_image_url,
-            'last_status' => $this->lastStatus->getApiResponseAttribute(),
-            'items' => $this->items->map->getApiResponseAttribute(),
+            'last_status' => $this->lastStatus ? $this->lastStatus->getApiResponseAttribute() : null,
+            'items' => $this->items ? $this->items->map->getApiResponseAttribute() : [],
         ];
     }
+
 
     public function getApiResponseDetailAttribute()
     {

@@ -72,4 +72,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/review/add', [OrderController::class, 'addReview']);
         Route::post('/{uuid}/mark-done', [OrderController::class, 'markAsDone']);
     });
+
+    Route::prefix('seller-dashboard')->group(function(){
+        Route::resource('product', \App\Http\Controllers\Seller\ProductController::class);
+    });
 });

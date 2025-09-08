@@ -51,4 +51,22 @@ class OrderController extends Controller
 
         return ResponseFormatter::success($order->api_response_detail);
     }
+
+    public function markAsDone(string $uuid)
+    {
+        $order = auth()->user()->orders()->with([
+            'lastStatus'
+        ])->where('uuid', $uuid)->firstOrFail();
+
+        if ($order->lastStatus->status != 'on_delivery') {
+            return ResponseFormatter::error(400, null, [
+                'Status order belum dikirim!'
+            ]);
+        }
+
+        $order->markAsDone();
+        $order->refresh();
+
+        return ResponseFormatter::success($order->api_response_detail);
+    }
 }

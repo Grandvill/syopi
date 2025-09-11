@@ -75,5 +75,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('seller-dashboard')->group(function(){
         Route::resource('product', \App\Http\Controllers\Seller\ProductController::class);
+
+        Route::resource('voucher', \App\Http\Controllers\Seller\VoucherController::class)->except([
+            'show'
+        ]);
     });
 });

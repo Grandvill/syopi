@@ -52,10 +52,10 @@ class Voucher extends Model
         return $query->where('is_public', true);
     }
 
-    // public function orders()
-    // {
-    //     return $this->hasMany(\App\Models\Order\Order::class, 'voucher_id');
-    // }
+    public function orders()
+    {
+        return $this->hasMany(\App\Models\Order\Order::class, 'voucher_id');
+    }
 
     public function getUsedCountAttribute()
     {

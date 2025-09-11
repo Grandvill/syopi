@@ -79,5 +79,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::resource('voucher', \App\Http\Controllers\Seller\VoucherController::class)->except([
             'show'
         ]);
+
+        Route::resource('order', \App\Http\Controllers\Seller\OrderController::class)->only([
+            'index', 'show'
+        ]);
     });
 });

@@ -75,6 +75,17 @@ class User extends Authenticatable implements Wallet
         ];
     }
 
+    public function getApiResponseAsBuyerAttribute()
+    {
+        return [
+            'name' => $this->name,
+            'email' => $this->email,
+            'photo_url' => $this->photo_url,
+            'username' => $this->username,
+            'phone' => $this->phone,
+        ];
+    }
+
     public function getApiResponseAsSellerAttribute()
     {
         $productIds = $this->products()->pluck('id');
@@ -114,6 +125,10 @@ class User extends Authenticatable implements Wallet
         return $this->hasMany(\App\Models\Order\Order::class, 'user_id');
     }
 
+    public function orderAsSeller()
+    {
+        return $this->hasMany(\App\Models\Order\Order::class, 'seller_id');
+    }
     public function vouchers()
     {
         return $this->hasMany(\App\Models\Voucher::class, 'seller_id');

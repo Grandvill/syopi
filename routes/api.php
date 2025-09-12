@@ -84,6 +84,8 @@ Route::middleware('auth:sanctum')->group(function () {
             'index', 'show'
         ]);
         Route::post('order/{uuid}/status', [\App\Http\Controllers\Seller\OrderController::class, 'addStatus']);
+
         Route::get('wallet-transaction', [\App\Http\Controllers\Seller\WalletController::class, 'index']);
+        Route::get('list-bank', [\App\Http\Controllers\Seller\WalletController::class, 'getListBank']);
     });
 });

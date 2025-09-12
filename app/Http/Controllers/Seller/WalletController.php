@@ -28,4 +28,11 @@ class WalletController extends Controller
             ];
         }));
     }
+
+    public function getListBank()
+    {
+        $banks = config('bank.list');
+
+        return ResponseFormatter::success($banks);
+    }
 }

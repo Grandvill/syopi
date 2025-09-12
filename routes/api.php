@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Seller\WalletController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -85,7 +86,8 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
         Route::post('order/{uuid}/status', [\App\Http\Controllers\Seller\OrderController::class, 'addStatus']);
 
-        Route::get('wallet-transaction', [\App\Http\Controllers\Seller\WalletController::class, 'index']);
-        Route::get('list-bank', [\App\Http\Controllers\Seller\WalletController::class, 'getListBank']);
+        Route::get('wallet-transaction', [WalletController::class, 'index']);
+        Route::get('list-bank', [WalletController::class, 'getListBank']);
+        Route::post('withdraw', [WalletController::class, 'createWithdraw']);
     });
 });

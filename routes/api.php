@@ -83,5 +83,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::resource('order', \App\Http\Controllers\Seller\OrderController::class)->only([
             'index', 'show'
         ]);
+        Route::post('order/{uuid}/status', [\App\Http\Controllers\Seller\OrderController::class, 'addStatus']);
     });
 });
